@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static humanize %}
+{% block title %}Mahsulotlar | NovaStore{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/product.css' %}">{% endblock %}
+{% block content %}
+<main class="products-page">
+  <div class="products-heading">
+    <div><span class="section-kicker">NOVA STORE</span><h1 class="page-title">Mahsulotlar</h1><p class="page-subtitle">O'zingizga mos mahsulotni toping va batafsil ko'rish uchun kartochkasiga bosing.</p></div>
+    <div class="product-count"><b>{{ mahsulot|length }}</b> ta mahsulot</div>
+  </div>
+
+  <div class="category-filter">
+    <a class="{% if not selected_category %}active{% endif %}" href="{% url 'products' %}">Barchasi</a>
+    {% for category in categories %}
+      <a class="{% if selected_category == category.slug %}active{% endif %}" href="?category={{ category.slug }}">{{ category.nomi }}</a>
+    {% endfor %}
+  </div>
+
+  {% if query %}<div class="search-result">“{{ query }}” bo'yicha qidiruv natijalari</div>{% endif %}
+
+  {% if mahsulot %}
+  <div class="products-grid">
+    {% for x in mahsulot %}
+    <article class="product-card">
+      <a class="card-link" href="{% url 'product-view' x.slug %}" aria-label="{{ x.description }}"></a>
+      <div class="product-media">
+        {% if x.image %}<img class="product-image" src="{{ x.image.url }}" alt="{{ x.description }}">{% else %}<div class="no-image"><span>📦</span><small>Rasm yo'q</small></div>{% endif %}
+        <span class="product-badge">{{ x.category.nomi }}</span>
+        <form class="favorite-form" method="POST" action="{% url 'toggle-favorite' x.id %}">
+          {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="favorite-btn {% if x.id in favorite_ids %}active{% endif %}" type="submit" aria-label="Sevimli">{% if x.id in favorite_ids %}♥{% else %}♡{% endif %}</button>
+        </form>
+      </div>
+      <div class="product-body">
+        <div class="product-shop"><span>NovaStore</span><span class="stock"><i></i> Mavjud: {{ x.quantity }}</span></div>
+        <h2 class="product-title">{{ x.description }}</h2>
+        <div class="rating-row"><span class="dot">•</span><span>Yangi mahsulot</span></div>
+        <hr>
+
+        <div class="rating-row">
+          <span class="stars">Reyting va sharhlar</span>
+          <span>Batafsil sahifada ko'rish va sharh qoldirish mumkin</span>
+        </div>
+        <div class="product-price-row"><strong class="price">{{ x.price|floatformat:0|intcomma }} so'm</strong></div>
+        <div class="card-like-row">
+          <span>❤️ {{ x.likes.count }}</span>
+          {% if user.is_authenticated %}
+          <form method="POST" action="{% url 'like-view' x.slug %}" class="card-like-form">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="card-like-btn" aria-label="Like">♡ Like</button>
+          </form>
+          {% else %}<a class="card-like-btn" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">♡ Like</a>{% endif %}
+        </div>
+        <form method="POST" action="{% url 'add-to-cart' x.id %}" class="add-cart-form">
+          {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="cart-btn" type="submit"><span>🛒</span> Savatga qo'shish</button>
+        </form>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty-state"><div class="empty-icon">🔎</div><h2>Mahsulot topilmadi</h2><p>Qidiruv yoki kategoriya bo'yicha boshqa variantni sinab ko'ring.</p><a class="btn" href="{% url 'products' %}">Barchasini ko'rish</a></div>
+  {% endif %}
+</main>
+{% endblock %}

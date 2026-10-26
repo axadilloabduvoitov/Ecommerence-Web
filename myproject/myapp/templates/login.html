@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Kirish | NovaStore{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/login.css' %}">{% endblock %}
+{% block content %}
+<main class="auth-page"><section class="auth-card glass"><div class="auth-head"><span class="section-kicker">NOVA STORE</span><h1>Xush kelibsiz 👋</h1><p>Savat va sevimlilardan foydalanish uchun hisobingizga kiring.</p></div>
+<form method="POST">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+<div class="form-group"><label>Username</label><input class="login" name="username" type="text" placeholder="Username kiriting" autocomplete="username" required></div>
+<div class="form-group"><label>Parol</label><input class="login" name="password" type="password" placeholder="Parolingizni kiriting" autocomplete="current-password" required></div>
+<button class="btn" type="submit">Kirish →</button></form>
+<div class="auth-foot">Hisobingiz yo'qmi? <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Ro'yxatdan o'ting</a></div>
+</section></main>
+{% endblock %}

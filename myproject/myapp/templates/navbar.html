@@ -1,0 +1,25 @@
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="brand" href="{% url 'index' %}">Nova<span>Store</span></a>
+    <button class="menu-toggle" data-menu aria-label="Menyu">☰</button>
+    <ul class="nav-links" data-nav-links>
+      <li><a href="{% url 'index' %}">Bosh sahifa</a></li>
+      <li><a href="{% url 'products' %}">Mahsulotlar</a></li>
+      <li><a href="{% url 'appearance-settings' %}">🎨 Ko'rinish</a></li>
+      <li><a href="{% url 'cart' %}">🛒 Savat</a></li>
+      {% if user.is_authenticated %}
+        {% if user.is_staff %}<li><a href="/admin/">⚙ Admin</a></li>{% endif %}
+        <li><a href="{% url 'logout' %}">Chiqish</a></li>
+      {% else %}
+        <li><a href="{% url 'login' %}">Kirish</a></li>
+        <li><a class="nav-register" href="{% url 'register' %}">Ro'yxatdan o'tish</a></li>
+      {% endif %}
+    </ul>
+    <div class="nav-actions">
+      <form action="{% url 'products' %}" method="GET" class="search-form">
+        <input class="i1" type="search" placeholder="Mahsulot qidirish..." name="q" value="{{ request.GET.q|default:'' }}">
+        <button class="bt1" type="submit">⌕</button>
+      </form>
+    </div>
+  </div>
+</nav>

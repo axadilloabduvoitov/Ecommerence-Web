@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static humanize %}
+{% block title %}NovaStore | Bosh sahifa{% endblock %}
+{% block content %}
+<main class="home-page">
+  <section class="hero glass">
+    <div class="hero-copy">
+      <span class="section-kicker">NOVA STORE</span>
+      <h1>Kerakli mahsulotlar — <span>bir joyda.</span></h1>
+      <p>Zamonaviy dizayn, qulay savat va sevimlilar. Mahsulotni tanlang, batafsil ko'ring va xaridingizni oson boshqaring.</p>
+      <div class="hero-actions">
+        <a class="btn" href="{% url 'products' %}">Mahsulotlarni ko'rish →</a>
+        {% if not user.is_authenticated %}<a class="btn secondary" href="{% url 'register' %}">Hisob yaratish</a>{% endif %}
+      </div>
+    </div>
+    <div class="hero-art"><div class="hero-orb">🛍️</div><span>Yangi<br>kelganlar</span></div>
+  </section>
+
+  <section class="home-section">
+    <div class="section-head"><div><span class="section-kicker">KATEGORIYALAR</span><h2>Bo'limni tanlang</h2></div><a href="{% url 'products' %}">Barchasi →</a></div>
+    <div class="category-grid">
+      {% for category in categories %}
+        <a class="category-card" href="{% url 'products' %}?category={{ category.slug }}">
+          <span class="category-icon">{% cycle "⚡" "🎧" "🏠" "💻" "📱" %}</span>
+          <strong>{{ category.nomi }}</strong>
+          <small>{{ category.products.count }} ta mahsulot</small>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="home-section">
+    <div class="section-head"><div><span class="section-kicker">TAVSIYA ETILADI</span><h2>Yangi mahsulotlar</h2></div><a href="{% url 'products' %}">Barchasini ko'rish →</a></div>
+    {% if featured %}
+      <div class="mini-products">
+        {% for x in featured %}
+          <a class="mini-product" href="{% url 'product-view' x.slug %}">
+            <div class="mini-image">{% if x.image %}<img src="{{ x.image.url }}" alt="{{ x.description }}">{% else %}📦{% endif %}</div>
+            <div><small>{{ x.category.nomi }}</small><h3>{{ x.description }}</h3><strong>{{ x.price|floatformat:0|intcomma }} so'm</strong></div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state"><div class="empty-icon">🛍️</div><h2>Mahsulotlar hali qo'shilmagan</h2><p>Admin paneldan mahsulot qo'shing.</p></div>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

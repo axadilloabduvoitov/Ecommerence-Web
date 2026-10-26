@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static humanize %}
+{% block title %}Savat va sevimlilar | NovaStore{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/cart.css' %}">{% endblock %}
+{% block content %}
+<main class="cart-page">
+  <div class="cart-header"><div><span class="cart-kicker">NOVA STORE</span><h1>Savatim 🛒</h1><p>Mahsulot sonini o'zgartiring — jami narx avtomatik hisoblanadi.</p></div><a href="{% url 'products' %}" class="continue-shopping">← Xaridni davom ettirish</a></div>
+
+  <section class="cart-section">
+    <div class="section-title"><h2>Savat</h2><span>{{ cart_count }} ta dona</span></div>
+    {% if cart_items %}
+      <div class="cart-items">
+      {% for item in cart_items %}
+        <div class="cart-item">
+          <a class="cart-image" href="{% url 'product-view' item.product.slug %}">{% if item.product.image %}<img src="{{ item.product.image.url }}" alt="{{ item.product.description }}">{% else %}📦{% endif %}</a>
+          <div class="cart-info"><a href="{% url 'product-view' item.product.slug %}"><h3>{{ item.product.description }}</h3></a><div class="cart-price">{{ item.product.price|floatformat:0|intcomma }} so'm / dona</div>
+            <form class="quantity-box" method="POST" action="{% url 'update-cart' item.id %}">
+              {% csrf_token %}
+              <button name="quantity" value="{{ item.quantity|add:'-1' }}" {% if item.quantity <= 1 %}disabled{% endif %}>−</button>
+              <span class="quantity-number">{{ item.quantity }}</span>
+              <button name="quantity" value="{{ item.quantity|add:'1' }}" {% if item.quantity >= item.product.quantity or item.quantity >= 100 %}disabled{% endif %}>+</button>
+              <small>maks. {{ item.product.quantity|add:"0" }} dona / 100</small>
+            </form>
+          </div>
+          <div class="cart-right"><strong class="item-total">{{ item.subtotal|floatformat:0|intcomma }} so'm</strong><form method="POST" action="{% url 'remove-from-cart' item.id %}">{% csrf_token %}<button class="remove-btn" type="submit" title="O'chirish">×</button></form></div>
+        </div>
+      {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-cart"><div class="empty-icon">🛒</div><h3>Savatingiz bo'sh</h3><p>Mahsulotlar sahifasidan yoqqan mahsulotingizni qo'shing.</p><a href="{% url 'products' %}" class="shop-btn">Mahsulotlarni ko'rish</a></div>
+    {% endif %}
+  </section>
+
+  <section class="cart-summary">
+    <div><span>Jami mahsulot</span><strong>{{ cart_count }} dona</strong></div>
+    <div><span>Umumiy summa</span><strong id="cart-total">{{ cart_total|floatformat:0|intcomma }} so'm</strong></div>
+    <button class="checkout-btn" type="button" onclick="alert('Buyurtma rasmiylashtirish keyingi bosqichda qo‘shiladi.')">Xaridni rasmiylashtirish →</button>
+  </section>
+
+  <section class="favorites-section">
+    <div class="section-title"><h2>❤️ Sevimlilar</h2><span>{{ favorites|length }} ta</span></div>
+    {% if favorites %}
+      <div class="favorite-grid">
+        {% for favorite in favorites %}
+          <div class="favorite-card">
+            <a href="{% url 'product-view' favorite.product.slug %}" class="favorite-image">{% if favorite.product.image %}<img src="{{ favorite.product.image.url }}" alt="{{ favorite.product.description }}">{% else %}📦{% endif %}</a>
+            <a href="{% url 'product-view' favorite.product.slug %}"><h3>{{ favorite.product.description }}</h3></a>
+            <div class="favorite-card-price">{{ favorite.product.price|floatformat:0|intcomma }} so'm</div>
+            <div class="favorite-actions">
+              <form method="POST" action="{% url 'add-to-cart' favorite.product.id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'cart' %}"><button class="favorite-cart-btn" type="submit">🛒 Savatga</button></form>
+              <form method="POST" action="{% url 'toggle-favorite' favorite.product.id %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'cart' %}"><button class="favorite-delete-btn" type="submit">♥</button></form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}<div class="empty-favorite"><span>♡</span><p>Hali sevimli mahsulotlar yo'q.</p></div>{% endif %}
+  </section>
+</main>
+{% endblock %}

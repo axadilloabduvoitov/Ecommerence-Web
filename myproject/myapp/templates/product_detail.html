@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static humanize %}
+{% block title %}{{ mahsulot.description }} | NovaStore{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/product.css' %}"><link rel="stylesheet" href="{% static 'css/detail.css' %}"><style>
+.reviews-section{max-width:1100px;margin:36px auto;padding:24px;background:#fff;border-radius:16px;color:#202938}
+.reviews-list{display:grid;gap:14px;margin:18px 0 28px}
+.review-item{padding:16px;border:1px solid #e7eaf0;border-radius:12px;background:#fafbfc}
+.review-heading{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.review-stars,.stars{color:#f59e0b;letter-spacing:2px;font-weight:700}
+.review-heading small{margin-left:auto;color:#7b8494}
+.review-item p{margin:10px 0 0;line-height:1.6}
+.review-form p{display:grid;gap:8px;margin:14px 0}
+.review-form input,.review-form select,.review-form textarea{width:100%;padding:11px;border:1px solid #d8deea;border-radius:8px;font:inherit}
+.review-form textarea{min-height:110px;resize:vertical}
+</style>{% endblock %}
+{% block content %}
+<main class="detail-page">
+  <a class="back-link" href="{% url 'products' %}">← Mahsulotlarga qaytish</a>
+  <section class="detail-card glass">
+    <div class="detail-image">
+      <div class="product-slider" data-slider>
+        <div class="slider-track">
+          {% if mahsulot.image %}
+            <div class="slide active"><img src="{{ mahsulot.image.url }}" alt="{{ mahsulot.description }}"></div>
+          {% endif %}
+          {% for photo in gallery_images %}
+            <div class="slide {% if not mahsulot.image and forloop.first %}active{% endif %}"><img src="{{ photo.image.url }}" alt="{{ photo.alt_text|default:mahsulot.description }}"></div>
+          {% endfor %}
+          {% if not mahsulot.image and not gallery_images %}<div class="slide active no-slide-image">📦</div>{% endif %}
+        </div>
+        {% if mahsulot.image or gallery_images|length > 1 %}
+          <button class="slider-arrow slider-prev" type="button" aria-label="Oldingi rasm">‹</button>
+          <button class="slider-arrow slider-next" type="button" aria-label="Keyingi rasm">›</button>
+          <div class="slider-dots"></div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="detail-info">
+      <span class="detail-category">{{ mahsulot.category.nomi }}</span>
+      <h1>{{ mahsulot.description }}</h1>
+      <div class="detail-rating">
+        <span class="stars">{% if average_rating %}{{ average_rating }} / 5{% else %}☆☆☆☆☆{% endif %}</span>
+        <span>{{ review_count }} ta sharh</span>
+      </div>
+      <form method="POST" action="{% url 'like-view' mahsulot.slug %}" class="detail-like-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'product-view' mahsulot.slug %}">
+        <button type="submit" class="detail-like-btn {% if liked %}liked{% endif %}">
+          {% if liked %}♥ Sizga yoqdi{% else %}♡ Like bosish{% endif %}
+        </button>
+        <span class="like-count">❤️ {{ like_count }} ta like</span>
+        <span class="view-count" aria-label="Ko'rishlar soni">👁️ {{ views_count }} ta ko'rish</span>
+      </form>
+      <p class="detail-description">Sifatli va zamonaviy mahsulot. Mahsulotning mavjudligi admin panel orqali boshqariladi.</p>
+      <div class="detail-price">{{ mahsulot.price|floatformat:0|intcomma }} <small>so'm</small></div>
+      <div class="detail-stock">{% if mahsulot.quantity > 0 %}✓ Omborda {{ mahsulot.quantity }} dona bor{% else %}× Hozircha tugagan{% endif %}</div>
+      {% if mahsulot.quantity > 0 %}
+        <div class="detail-actions">
+          <form method="POST" action="{% url 'add-to-cart' mahsulot.id %}">
+            {% csrf_token %}<input type="hidden" name="next" value="{% url 'product-view' mahsulot.slug %}">
+            <button class="btn detail-cart" type="submit">🛒 Savatga qo'shish</button>
+          </form>
+          <form method="POST" action="{% url 'toggle-favorite' mahsulot.id %}">
+            {% csrf_token %}<input type="hidden" name="next" value="{% url 'product-view' mahsulot.slug %}">
+            <button class="favorite-detail {% if is_favorite %}active{% endif %}" type="submit">{% if is_favorite %}♥ Sevimlida{% else %}♡ Sevimliga{% endif %}</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="reviews-section" id="sharhlar">
+    <h2>Mijozlar sharhlari</h2>
+    {% if reviews %}
+      <div class="reviews-list">
+        {% for review in reviews %}
+          <article class="review-item">
+            <div class="review-heading">
+              <strong>{{ review.user.username }}</strong>
+              <span class="review-stars" aria-label="{{ review.rating }} yulduz">
+                {% for star in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+              </span>
+              <small>{{ review.created_at|date:"d.m.Y H:i" }}</small>
+            </div>
+            <p>{{ review.comment|linebreaksbr }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>Hozircha sharh yo'q. Birinchi bo'lib fikringizni yozing!</p>
+    {% endif %}
+    <h3>Sharh qoldirish</h3>
+    {% if request.user.is_authenticated %}
+      <form method="post" class="review-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn" type="submit">Sharhni yuborish</button>
+      </form>
+    {% else %}
+      <p>Sharh qoldirish uchun <a href="{% url 'login' %}?next={{ request.path|urlencode }}">tizimga kiring</a>.</p>
+    {% endif %}
+  </section>
+
+  {% if related %}
+  <section class="home-section"><div class="section-head"><div><span class="section-kicker">O'XSHASH</span><h2>Sizga yoqishi mumkin</h2></div></div>
+    <div class="mini-products">{% for x in related %}<a class="mini-product" href="{% url 'product-view' x.slug %}"><div class="mini-image">{% if x.image %}<img src="{{ x.image.url }}" alt="{{ x.description }}">{% else %}📦{% endif %}</div><div><small>{{ x.category.nomi }}</small><h3>{{ x.description }}</h3><strong>{{ x.price|floatformat:0|intcomma }} so'm</strong></div></a>{% endfor %}</div>
+  </section>
+  {% endif %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll("[data-slider]").forEach((slider) => {
+  const slides = Array.from(slider.querySelectorAll(".slide"));
+  const dotsBox = slider.querySelector(".slider-dots");
+  if (!slides.length) return;
+  let current = Math.max(0, slides.findIndex((slide) => slide.classList.contains("active")));
+  const show = (index) => {
+    current = (index + slides.length) % slides.length;
+    slides.forEach((slide, i) => slide.classList.toggle("active", i === current));
+    if (dotsBox) Array.from(dotsBox.children).forEach((dot, i) => dot.classList.toggle("active", i === current));
+  };
+  if (dotsBox && slides.length > 1) {
+    slides.forEach((_, i) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "slider-dot";
+      dot.setAttribute("aria-label", `${i + 1}-rasm`);
+      dot.addEventListener("click", () => show(i));
+      dotsBox.appendChild(dot);
+    });
+  }
+  slider.querySelector(".slider-prev")?.addEventListener("click", () => show(current - 1));
+  slider.querySelector(".slider-next")?.addEventListener("click", () => show(current + 1));
+  show(current);
+});
+</script>
+{% endblock %}

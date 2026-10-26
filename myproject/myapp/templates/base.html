@@ -1,0 +1,30 @@
+{% load static %}
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}NovaStore{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+  <link rel="stylesheet" href="{% static 'css/appearance.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% include "navbar.html" %}
+  {% if messages %}
+    <div class="message-wrap">
+      {% for message in messages %}
+        <div class="message message-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+  <footer><p>© {% now "Y" %} NovaStore · Zamonaviy xarid platformasi</p></footer>
+  <script src="{% static 'js/appearance.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

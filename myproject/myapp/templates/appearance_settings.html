@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Ko'rinish sozlamalari | NovaStore{% endblock %}
+{% block content %}
+<section class="appearance-page">
+  <div class="appearance-heading"><span class="appearance-kicker">NOVASTORE PERSONAL</span><h1>Sayt ko'rinishini sozlang</h1><p>Tun yoki kun rejimini tanlang, fon rasmini yuklang, rang, blur va motion effektlarini o'zingizga moslang.</p></div>
+  <div class="appearance-layout">
+    <div class="appearance-panel">
+      <h2>🌗 Rejim</h2>
+      <div class="appearance-choice"><button type="button" class="appearance-btn" data-theme-choice="light">☀️ Kun</button><button type="button" class="appearance-btn" data-theme-choice="dark">🌙 Tun</button><button type="button" class="appearance-btn" data-theme-choice="system">⚙️ Avtomatik</button></div>
+      <h2>🖼️ Orqa fon rasmi</h2>
+      <label class="file-drop" for="background-upload"><span class="file-icon">＋</span><strong>Rasm tanlash</strong><small>JPG, PNG yoki WEBP — rasm faqat shu brauzerda saqlanadi</small></label>
+      <input id="background-upload" type="file" accept="image/*" hidden>
+      <div class="appearance-choice"><button type="button" class="appearance-btn" id="clear-background">Rasmni olib tashlash</button></div>
+      <h2>🎨 Fon rangi</h2>
+      <div class="color-line"><input id="background-color" type="color" value="#111827" aria-label="Fon rangini tanlash"><input id="rgb-color" type="text" value="rgb(17, 24, 39)" aria-label="RGB rang" placeholder="rgb(17, 24, 39)"></div>
+      <h2>🌫️ Blur <span id="blur-value">20%</span></h2><input class="appearance-range" id="background-blur" type="range" min="0" max="100" step="1" value="20"><small class="range-help">0% — tiniq · 100% — maksimal xiralik</small>
+      <h2>💨 Motion <span id="motion-value">Yoqilgan</span></h2><label class="switch-line"><span>Fon sekin harakatlansin</span><input id="background-motion" type="checkbox" checked><span class="switch-ui"></span></label>
+      <div class="appearance-choice appearance-actions"><button type="button" class="appearance-btn primary" id="save-appearance">Sozlamalarni saqlash</button><button type="button" class="appearance-btn" id="reset-appearance">Standart holat</button></div>
+      <p class="appearance-note" id="appearance-status" role="status">Sozlamalar ushbu brauzerda avtomatik saqlanadi.</p>
+    </div>
+    <aside class="appearance-preview"><div class="preview-top"><span class="preview-dot"></span><span class="preview-dot"></span><span class="preview-dot"></span><span class="preview-label">LIVE PREVIEW</span></div><div class="preview-content"><span class="preview-tag">NOVASTORE</span><h2>O'zingga mos<br>muhit yarat.</h2><p>Rang, rasm va effektlarni o'zgartirsang, saytning qolgan sahifalarida ham qo'llanadi.</p><div class="preview-card"><div class="preview-product"></div><div><strong>Nova Collection</strong><small>Yangi ko'rinish, yangi kayfiyat</small></div><span>✦</span></div></div></aside>
+  </div>
+</section>
+{% endblock %}
